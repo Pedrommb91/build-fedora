@@ -1,0 +1,46 @@
+---
+- name: download winetricks
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
+    dest: /usr/local/bin/
+    mode: '0755'
+
+- name: Creates gu directory
+  file:
+    path: "{{ user_home }}/.gu"
+    state: directory
+
+- name: Build wine prefix
+  shell: "WINEPREFIX={{ user_home }}/.gu winecfg"
+
+- name: Fix fonts
+  shell: "WINEPREFIX={{ user_home }}/.gu winetricks corefonts"
+
+- name: Download dxvk
+  get_url:
+    url: https://github.com/doitsujin/dxvk/releases/download/v1.10.1/dxvk-1.10.1.tar.gz
+    dest: "{{ user_home }}"
+
+- name: Untar dxkv
+  unarchive:
+    src: "{{ user_home }}/dxvk-1.10.1.tar.gz"
+    dest: "{{ user_home }}"
+
+- name: Make 3d rendering work
+  shell: "WINEPREFIX={{ user_home }}/.gu {{ user_home }}/dxvk-1.10.1/setup_dxvk.sh install"
+
+- name: Remove tmp files
+  shell: "rm {{ user_home }}/dxvk-1.10.1.tar.gz"
+
+- name: Download GodsUnchained installer
+  get_url:
+    url: https://downloads.immutable.com/Immutable+Setup+0.11.0.exe
+    dest: "{{ user_home }}/Downloads"
+
+- name: Install GU
+  shell: "WINEPREFIX={{ user_home}}/.gu wine {{ user_home }}/Downloads/Immutable+Setup+0.11.0.exe"
+
+- name: Copy desktop file
+  ansible.builtin.copy:
+    src: "{{ user_home }}/.local/share/applications/wine/Programs/Immutable.desktop"
+    dest: "{{ user_home }}/.local/share/applications/wine/Programs/gu.desktop"

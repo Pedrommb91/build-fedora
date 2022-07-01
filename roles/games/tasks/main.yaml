@@ -1,0 +1,28 @@
+---
+- name: Install wine
+  dnf:
+    name: wine
+    state: present
+
+- name: Install lutris
+  dnf:
+    name: lutris
+    state: present
+
+- name: Install steam
+  dnf:
+    name: steam
+    state: present
+
+- name: Install game mode
+  dnf:
+    name: gamemode
+    state: present
+
+- name: Install nvidia drivers
+  dnf:
+    name: akmod-nvidia
+    state: present
+
+- name: Install gods unchained
+  include_tasks: godsunchained.yaml

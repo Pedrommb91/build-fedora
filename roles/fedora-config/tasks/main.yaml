@@ -1,0 +1,24 @@
+---
+- name: read dnf.conf
+  shell: cat /etc/dnf/dnf.conf
+  register: dnf_conf
+
+- name: Update dnf.conf file
+  when: dnf_conf.stdout.find('##Added for speed') == -1
+  blockinfile:
+    dest: /etc/dnf/dnf.conf
+    marker: "##Added for speed"
+    block: |
+       fastestmirror=True
+       max_parallel_downloads=10
+       defaultyes=True
+       keepcache=True
+
+- name: System update
+  dnf:
+    name:  "*"
+    state: latest
+
+- name: Change hostname
+  hostname:
+    name: "{{ hostname }}"

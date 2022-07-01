@@ -1,0 +1,6 @@
+---
+- name: Read bashrc file
+  shell: cat .bashrc
+  args:
+    chdir: "{{ user_home }}"
+  register: bashrc_file

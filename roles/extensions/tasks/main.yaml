@@ -1,0 +1,15 @@
+---
+- name: Install extensions app
+  dnf:
+    name: gnome-extensions-app.x86_64
+    state: present
+
+- name: Install OpenWeather
+  dnf:
+    name: gnome-shell-extension-openweather
+    state: present
+
+- name: Install Sound output device chooser
+  dnf:
+    name: gnome-shell-extension-sound-output-device-chooser
+    state: present

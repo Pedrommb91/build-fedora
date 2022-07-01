@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  gather_facts: true
+  roles:
+#    - fedora-config
+#    - rpm-fusion
+#    - flatpak
+#    - extensions
+#    - brave
+#    - docker
+#    - bash
+#    - minikube
+#    - k8s-tools
+    - games

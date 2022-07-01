@@ -1,0 +1,63 @@
+---
+- name: Get bashrc_file variable
+  include_role:
+    name: read-files
+  vars:
+    bashrc_file: "{{ bashrc_file }}"
+
+- name: Enable k9s repository
+  community.general.copr:
+    name: luminoso/k9s
+
+- name: Install k9s
+  dnf:
+    name: k9s
+    state: present
+
+- name: Download kubectl and install
+  ansible.builtin.get_url:
+    url: https://dl.k8s.io/release/v1.24.0/bin/linux/amd64/kubectl
+    dest: /usr/local/bin/
+    mode: '0755'
+
+- name: Add k alias for kubectl
+  when: bashrc_file.stdout.find('alias k="kubectl"') == -1
+  lineinfile:
+    path: "{{ user_home }}/.bashrc"
+    line: 'alias k="kubectl"'
+
+- name: Set variables for krew
+  set_fact:
+    krew: "krew-linux_amd64"
+
+- name: Download krew tar.gz
+  ansible.builtin.get_url:
+    url: "https://github.com/kubernetes-sigs/krew/releases/latest/download/{{ krew }}.tar.gz"
+    dest: "{{ user_home }}"
+
+- name: untar the krew
+  ansible.builtin.unarchive:
+    src: "{{ user_home }}/{{ krew }}.tar.gz"
+    dest: "{{ user_home }}"
+
+- name: Install krew
+  shell: "./{{ krew }} install krew"
+  args:
+    chdir: "{{ user_home }}"
+
+- name: Delete krew tmp files
+  shell: "rm {{ user_home }}/{{ krew }} && rm {{ user_home }}/{{ krew }}.tar.gz"
+
+- name: Add krew to Path
+  when: bashrc_file.stdout.find('## Krew path') == -1
+  blockinfile:
+    dest: "{{ user_home }}/.bashrc"
+    marker: "## Krew path"
+    block: export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+
+- name: Install Krew plugins
+  shell: "{{ user_home }}/.krew/bin/kubectl-krew install {{ item }}"
+  with_items:
+    - "ctx"
+    - "ns"
+    - "stern"

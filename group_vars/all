@@ -1,0 +1,4 @@
+---
+username: "{{ lookup('env','USERNAME') }}"
+hostname: "{{ lookup('env', 'USERNAME') }}"
+user_home: "/home/{{ lookup('env', 'USERNAME') }}"
