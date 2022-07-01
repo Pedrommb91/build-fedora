@@ -13,3 +13,8 @@
   dnf:
     name: gnome-shell-extension-sound-output-device-chooser
     state: present
+
+- name: Install tweaks
+  dnf:
+    name: gnome-tweaks 
+    state: present

@@ -35,18 +35,25 @@
     url: "https://github.com/kubernetes-sigs/krew/releases/latest/download/{{ krew }}.tar.gz"
     dest: "{{ user_home }}"
 
+- name: Create krew directory
+  file:
+    path: "{{ user_home }}/.krew/bin/"
+    state: directory
+    owner: "{{ lookup('env', 'USERNAME') }}"
+
 - name: untar the krew
   ansible.builtin.unarchive:
     src: "{{ user_home }}/{{ krew }}.tar.gz"
-    dest: "{{ user_home }}"
+    dest: "{{ user_home }}/.krew/bin/"
 
-- name: Install krew
-  shell: "./{{ krew }} install krew"
-  args:
-    chdir: "{{ user_home }}"
+- name: Rename krew file
+  copy:
+    src: "{{ user_home }}/.krew/bin/{{ krew }}"
+    dest: "{{ user_home }}/.krew/bin/kubectl-krew"
+    mode: '0755'
 
 - name: Delete krew tmp files
-  shell: "rm {{ user_home }}/{{ krew }} && rm {{ user_home }}/{{ krew }}.tar.gz"
+  shell: "rm {{ user_home }}/{{ krew }}.tar.gz"
 
 - name: Add krew to Path
   when: bashrc_file.stdout.find('## Krew path') == -1

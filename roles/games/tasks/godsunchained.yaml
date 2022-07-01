@@ -9,38 +9,57 @@
   file:
     path: "{{ user_home }}/.gu"
     state: directory
+    owner: "{{ lookup('env', 'USERNAME') }}"
 
 - name: Build wine prefix
+  become: yes
+  become_user: "{{ lookup('env', 'USERNAME') }}"
   shell: "WINEPREFIX={{ user_home }}/.gu winecfg"
 
 - name: Fix fonts
+  become: yes
+  become_user: "{{ lookup('env', 'USERNAME') }}"
   shell: "WINEPREFIX={{ user_home }}/.gu winetricks corefonts"
 
 - name: Download dxvk
+  become: yes
+  become_user: "{{ lookup('env', 'USERNAME') }}"
   get_url:
     url: https://github.com/doitsujin/dxvk/releases/download/v1.10.1/dxvk-1.10.1.tar.gz
     dest: "{{ user_home }}"
 
 - name: Untar dxkv
+  become: yes
+  become_user: "{{ lookup('env', 'USERNAME') }}"
   unarchive:
     src: "{{ user_home }}/dxvk-1.10.1.tar.gz"
     dest: "{{ user_home }}"
 
 - name: Make 3d rendering work
+  become: yes
+  become_user: "{{ lookup('env', 'USERNAME') }}"
   shell: "WINEPREFIX={{ user_home }}/.gu {{ user_home }}/dxvk-1.10.1/setup_dxvk.sh install"
 
 - name: Remove tmp files
+  become: yes
+  become_user: "{{ lookup('env', 'USERNAME') }}"
   shell: "rm {{ user_home }}/dxvk-1.10.1.tar.gz"
 
 - name: Download GodsUnchained installer
+  become: yes
+  become_user: "{{ lookup('env', 'USERNAME') }}"
   get_url:
     url: https://downloads.immutable.com/Immutable+Setup+0.11.0.exe
     dest: "{{ user_home }}/Downloads"
 
 - name: Install GU
+  become: yes
+  become_user: "{{ lookup('env', 'USERNAME') }}"
   shell: "WINEPREFIX={{ user_home}}/.gu wine {{ user_home }}/Downloads/Immutable+Setup+0.11.0.exe"
 
 - name: Copy desktop file
+  become: yes
+  become_user: "{{ lookup('env', 'USERNAME') }}"
   ansible.builtin.copy:
     src: "{{ user_home }}/.local/share/applications/wine/Programs/Immutable.desktop"
     dest: "{{ user_home }}/.local/share/applications/wine/Programs/gu.desktop"
