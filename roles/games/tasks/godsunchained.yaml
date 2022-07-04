@@ -57,9 +57,37 @@
   become_user: "{{ lookup('env', 'USERNAME') }}"
   shell: "WINEPREFIX={{ user_home}}/.gu wine {{ user_home }}/Downloads/Immutable+Setup+0.11.0.exe"
 
+- name: Get icon name
+  become: yes
+  become_user: "{{ lookup('env', 'USERNAME') }}"
+  shell: cat Immutable.desktop | grep Icon
+  args:
+    chdir: "{{ user_home}}/.local/share/applications/wine/Programs"
+  register: icon_line
+  ignore_errors: yes
+
 - name: Copy desktop file
   become: yes
   become_user: "{{ lookup('env', 'USERNAME') }}"
   ansible.builtin.copy:
-    src: "{{ user_home }}/.local/share/applications/wine/Programs/Immutable.desktop"
     dest: "{{ user_home }}/.local/share/applications/wine/Programs/gu.desktop"
+    content: |
+      [Desktop Entry]
+      Name=Gods Unchained
+      Exec="{{ user_home }}/.local/share/applications/wine/Programs/godsunchained.sh"
+      {{ icon_line.stdout }}
+      Type=Application
+      Categories=Game
+      Terminal=false
+
+- name: Create the script to exec gu
+  become: yes
+  become_user: "{{ lookup('env', 'USERNAME') }}"
+  ansible.builtin.copy:
+    dest: "{{ user_home }}/godsunchained.sh"
+    content: |
+        #! /bin/bash
+        WINEPREFIX={{ user_home }}/.gu wine {{ user_home }}/.gu/drive_c/users/{{ lookup('env', 'USERNAME') }}/AppData/Local/Programs/immutable-launcher/Immutable.exe
+    mode: '0755'
+
+
